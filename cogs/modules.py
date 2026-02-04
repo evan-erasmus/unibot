@@ -3,6 +3,7 @@ from discord.ext import commands
 from datetime import datetime
 from utils.data_manager import DataManager
 from utils.helpers import is_admin, log_action, send_embed, format_list
+from discord import app_commands
 
 
 class Modules(commands.Cog):
@@ -204,10 +205,10 @@ class Modules(commands.Cog):
                 ctx,
                 title="❌ Deletion Failed",
                 description=f"Error: {str(e)}",
-                color=discord.Color.red()
+                color=discord.Color.red(),
             )
     
-    @commands.command(name="modules", aliases=["listmodules"])
+    @app_commands.command(name="modules", aliases=["listmodules"], description="List all available modules")
     async def list_modules(self, ctx):
         """List all available modules
         
@@ -220,7 +221,8 @@ class Modules(commands.Cog):
                 ctx,
                 title="📚 Modules",
                 description="No modules have been created yet.",
-                color=discord.Color.blue()
+                color=discord.Color.blue(),
+                ephemeral=True
             )
             return
         
@@ -248,10 +250,12 @@ class Modules(commands.Cog):
             title="📚 Available Modules",
             fields=fields,
             color=discord.Color.blue(),
-            footer=f"Total: {len(modules)} modules"
+            footer=f"Total: {len(modules)} modules",
+            ephemeral=True
         )
     
-    @commands.command(name="joinmodule", aliases=["join"])
+    @app_commands.command(name="joinmodule", aliases=["join"], description="Join a module")
+    @app_commands.describe(module="Module code, e.g. MAT1512")
     async def join_module(self, ctx, code: str):
         """Join a module to access its channels
         
@@ -264,7 +268,8 @@ class Modules(commands.Cog):
                 ctx,
                 title="❌ Not Found",
                 description=f"Module **{code}** does not exist.",
-                color=discord.Color.red()
+                color=discord.Color.red(),
+                ephemeral=True
             )
             return
         
@@ -276,7 +281,8 @@ class Modules(commands.Cog):
                 ctx,
                 title="❌ Error",
                 description=f"Module role for **{code}** not found.",
-                color=discord.Color.red()
+                color=discord.Color.red(),
+                ephemeral=True
             )
             return
         
@@ -285,7 +291,8 @@ class Modules(commands.Cog):
                 ctx,
                 title="⚠️ Already Joined",
                 description=f"You are already in **{code}**.",
-                color=discord.Color.orange()
+                color=discord.Color.orange(),
+                ephemeral=True
             )
             return
         
@@ -297,7 +304,8 @@ class Modules(commands.Cog):
                 ctx,
                 title="✅ Module Joined",
                 description=f"You have joined **{code}**!\n\nYou can now access the module channels.",
-                color=discord.Color.green()
+                color=discord.Color.green(),
+                ephemeral=True
             )
             
         except discord.Forbidden:
@@ -305,10 +313,12 @@ class Modules(commands.Cog):
                 ctx,
                 title="❌ Permission Error",
                 description="I don't have permission to assign roles.",
-                color=discord.Color.red()
+                color=discord.Color.red(),
+                ephemeral=True
             )
     
-    @commands.command(name="leavemodule", aliases=["leave"])
+    @app_commands.command(name="leavemodule", aliases=["leave"], description="Leave a module")
+    @app_commands.describe(module="Module code, e.g. MAT1512")
     async def leave_module(self, ctx, code: str):
         """Leave a module
         
@@ -321,7 +331,8 @@ class Modules(commands.Cog):
                 ctx,
                 title="❌ Not Found",
                 description=f"Module **{code}** does not exist.",
-                color=discord.Color.red()
+                color=discord.Color.red(),
+                ephemeral=True
             )
             return
         
@@ -333,7 +344,8 @@ class Modules(commands.Cog):
                 ctx,
                 title="❌ Error",
                 description=f"Module role for **{code}** not found.",
-                color=discord.Color.red()
+                color=discord.Color.red(),
+                ephemeral=True
             )
             return
         
@@ -342,7 +354,8 @@ class Modules(commands.Cog):
                 ctx,
                 title="⚠️ Not Joined",
                 description=f"You are not in **{code}**.",
-                color=discord.Color.orange()
+                color=discord.Color.orange(),
+                ephemeral=True
             )
             return
         
@@ -353,7 +366,8 @@ class Modules(commands.Cog):
                 ctx,
                 title="✅ Module Left",
                 description=f"You have left **{code}**.",
-                color=discord.Color.green()
+                color=discord.Color.green(),
+                ephemeral=True
             )
             
         except discord.Forbidden:
@@ -361,7 +375,8 @@ class Modules(commands.Cog):
                 ctx,
                 title="❌ Permission Error",
                 description="I don't have permission to remove roles.",
-                color=discord.Color.red()
+                color=discord.Color.red(),
+                ephemeral=True
             )
 
 

@@ -133,7 +133,8 @@ async def send_embed(
     color: discord.Color = discord.Color.blue(),
     fields: List[Dict[str, Any]] = None,
     footer: str = None,
-    thumbnail: str = None
+    thumbnail: str = None,
+    ephemeral: bool = False
 ) -> discord.Message:
     """Send a formatted embed message"""
     embed = discord.Embed(color=color)

@@ -5,6 +5,7 @@ import psutil
 from datetime import datetime
 from utils.data_manager import DataManager
 from utils.helpers import send_embed, get_log_channel
+from discord import app_commands
 
 
 class Utilities(commands.Cog):
@@ -15,7 +16,7 @@ class Utilities(commands.Cog):
         self.dm = DataManager()
         self.start_time = datetime.utcnow()
     
-    @commands.command(name="ping")
+    @app_commands.command(name="ping")
     async def ping(self, ctx):
         """Check bot latency
         
@@ -27,7 +28,8 @@ class Utilities(commands.Cog):
             ctx,
             title="🏓 Pong!",
             description=f"Latency: **{latency}ms**",
-            color=discord.Color.green() if latency < 100 else discord.Color.orange()
+            color=discord.Color.green() if latency < 100 else discord.Color.orange(),
+            ephemeral=True
         )
     
     @commands.command(name="info", aliases=["botinfo"])
@@ -78,7 +80,8 @@ class Utilities(commands.Cog):
             title="🤖 Bot Information",
             fields=fields,
             color=discord.Color.blue(),
-            thumbnail=str(self.bot.user.avatar.url) if self.bot.user.avatar else None
+            thumbnail=str(self.bot.user.avatar.url) if self.bot.user.avatar else None,
+            ephemeral=True
         )
     
     @commands.command(name="serverinfo", aliases=["guildinfo"])
@@ -142,7 +145,8 @@ class Utilities(commands.Cog):
             title=f"📋 {guild.name}",
             fields=fields,
             color=discord.Color.blue(),
-            thumbnail=str(guild.icon.url) if guild.icon else None
+            thumbnail=str(guild.icon.url) if guild.icon else None,
+            ephemeral=True
         )
     
     @commands.command(name="userinfo", aliases=["whois"])
@@ -191,7 +195,8 @@ class Utilities(commands.Cog):
             description=f"{member.mention}\n**ID:** {member.id}",
             fields=fields,
             color=member.color if member.color != discord.Color.default() else discord.Color.blue(),
-            thumbnail=str(member.avatar.url) if member.avatar else None
+            thumbnail=str(member.avatar.url) if member.avatar else None,
+            ephemeral=True
         )
     
     @commands.command(name="mymodules")
@@ -208,7 +213,8 @@ class Utilities(commands.Cog):
                 ctx,
                 title="📚 Your Modules",
                 description="You haven't joined any modules yet.\n\nUse `!joinmodule <code>` to join a module.",
-                color=discord.Color.blue()
+                color=discord.Color.blue(),
+                ephemeral=True
             )
             return
         
@@ -219,7 +225,8 @@ class Utilities(commands.Cog):
             title="📚 Your Modules",
             description=module_list,
             color=discord.Color.blue(),
-            footer=f"Total: {len(modules)} modules"
+            footer=f"Total: {len(modules)} modules",
+            ephemeral=True
         )
     
     @commands.command(name="commands", aliases=["cmds"])
@@ -255,35 +262,9 @@ class Utilities(commands.Cog):
             description="Use `!help <command>` for detailed information about a command.",
             fields=fields,
             color=discord.Color.blue(),
-            footer="UNISA BSc Community Bot"
+            footer="UNISA BSc Community Bot",
+            ephemeral=True
         )
-    
-    @commands.command(name="announce")
-    @commands.has_permissions(manage_messages=True)
-    async def announce(self, ctx, channel: discord.TextChannel, *, message: str):
-        """Send an announcement to a channel
-        
-        Usage: !announce #channel message
-        """
-        try:
-            embed = discord.Embed(
-                description=message,
-                color=discord.Color.blue(),
-                timestamp=datetime.utcnow()
-            )
-            embed.set_footer(text=f"Announced by {ctx.author.display_name}")
-            
-            await channel.send(embed=embed)
-            await ctx.send(f"✅ Announcement sent to {channel.mention}")
-            
-        except discord.Forbidden:
-            await send_embed(
-                ctx,
-                title="❌ Permission Error",
-                description=f"I don't have permission to send messages in {channel.mention}.",
-                color=discord.Color.red()
-            )
-
 
 async def setup(bot):
     await bot.add_cog(Utilities(bot))

@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from utils.data_manager import DataManager
 from utils.helpers import is_owner, is_admin, log_action, send_embed
+from discord import app_commands
 
 
 class Admin(commands.Cog):
@@ -154,6 +155,34 @@ class Admin(commands.Cog):
                 description=f"Error: {str(e)}",
                 color=discord.Color.red()
             )
+
+    @app_commands.command(name="announce", description="Send an announcement to a channel")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def announce(self, ctx, channel: discord.TextChannel, *, message: str):
+        """Send an announcement to a channel
+        
+        Usage: !announce #channel message
+        """
+        try:
+            embed = discord.Embed(
+                description=message,
+                color=discord.Color.blue(),
+                timestamp=datetime.utcnow()
+            )
+            embed.set_footer(text=f"Announced by {ctx.author.display_name}")
+            
+            await channel.send(embed=embed)
+            await ctx.send(f"✅ Announcement sent to {channel.mention}")
+            
+        except discord.Forbidden:
+            await send_embed(
+                ctx,
+                title="❌ Permission Error",
+                description=f"I don't have permission to send messages in {channel.mention}.",
+                color=discord.Color.red(),
+                ephemeral=True
+            )
+
     
     @commands.command(name="shutdown")
     @is_owner()
