@@ -4,7 +4,7 @@ import json
 import discord
 from functools import wraps
 from typing import Union, Any, Dict, List, Optional
-from discord import Object, Color, Interaction
+from discord import Object, Color, Interaction, Message
 
 
 DATA_DIR = "data"
