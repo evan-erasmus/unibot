@@ -96,7 +96,7 @@ class Admin(commands.Cog):
     
     @commands.command(name="sync")
     @is_owner()
-    async def sync_commands(self, ctx):
+    async def sync_commands(self, ctx, guild_id: int = None):
         """Sync application commands (Owner only)
         
         Usage: !sync
@@ -104,7 +104,7 @@ class Admin(commands.Cog):
         await ctx.send("🔄 Syncing commands...")
         
         try:
-            synced = await self.bot.tree.sync()
+            synced = await self.bot.tree.sync(guild=guild_id)
             await send_embed(
                 ctx,
                 title="✅ Commands Synced",
