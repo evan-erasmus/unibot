@@ -2,7 +2,7 @@ import os
 import json
 import discord
 from functools import wraps
-from typing import Any, Dict, List, Optional
+from typing import Union, Any, Dict, List, Optional
 
 DATA_DIR = "data"
 LOG_CHANNEL_NAME = os.getenv("LOG_CHANNEL_NAME", "server-logs")
