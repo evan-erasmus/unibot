@@ -4,6 +4,7 @@ from datetime import datetime
 from utils.data_manager import DataManager
 from utils.helpers import is_admin, log_action, send_embed, format_list
 from discord import app_commands
+from discord import Object, Color, Interaction
 
 
 class Modules(commands.Cog):
