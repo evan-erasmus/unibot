@@ -95,28 +95,33 @@ class Admin(commands.Cog):
         )
     
     @commands.command(name="sync")
-    @is_owner()
+    @commands.is_owner()
     async def sync_commands(self, ctx, guild_id: int = None):
         """Sync application commands (Owner only)
         
-        Usage: !sync
+        Usage: !sync [guild_id]
         """
         await ctx.send("🔄 Syncing commands...")
-        
+
         try:
-            synced = await self.bot.tree.sync(guild=guild_id)
+            if guild_id:
+                guild = Object(id=guild_id)
+                synced = await self.bot.tree.sync(guild=guild)
+            else:
+                synced = await self.bot.tree.sync()
+
             await send_embed(
                 ctx,
                 title="✅ Commands Synced",
                 description=f"Synced {len(synced)} application commands.",
-                color=discord.Color.green()
+                color=Color.green()
             )
         except Exception as e:
             await send_embed(
                 ctx,
                 title="❌ Sync Failed",
                 description=f"Error: {str(e)}",
-                color=discord.Color.red()
+                color=Color.red()
             )
     
     @commands.command(name="reload")
