@@ -208,174 +208,194 @@ class Modules(commands.Cog):
                 color=discord.Color.red(),
             )
     
-    @app_commands.command(name="modules", aliases=["listmodules"], description="List all available modules")
-    async def list_modules(self, ctx):
-        """List all available modules
-        
-        Usage: !modules
-        """
-        modules = self.dm.get_modules()
-        
-        if not modules:
+    @app_commands.command(name="modules", description="List all available modules")
+    async def list_modules(self, interaction: Interaction):
+        guild = interaction.guild
+
+        if not guild:
             await send_embed(
-                ctx,
-                title="📚 Modules",
-                description="No modules have been created yet.",
-                color=discord.Color.blue(),
+                interaction,
+                title="❌ Error",
+                description="This command must be used in a server.",
+                color=Color.red(),
                 ephemeral=True
             )
             return
-        
-        # Sort by code
+
+        modules = self.dm.get_modules()
+        if not modules:
+            await send_embed(
+                interaction,
+                title="📚 Modules",
+                description="No modules have been created yet.",
+                color=Color.blue(),
+                ephemeral=True
+            )
+            return
+
         sorted_modules = sorted(modules.items())
-        
         fields = []
         for code, data in sorted_modules:
-            name = data.get('name', code)
-            role = ctx.guild.get_role(data.get('role_id', 0))
-            
+            name = data.get("name", code)
+            role = guild.get_role(data.get("role_id", 0))
             value = f"**Name:** {name}\n"
             if role:
                 value += f"**Role:** {role.mention}\n"
             value += f"**Created:** {data.get('created', 'Unknown')[:10]}"
-            
             fields.append({
-                'name': f"📖 {code}",
-                'value': value,
-                'inline': True
+                "name": f"📖 {code}",
+                "value": value,
+                "inline": True
             })
-        
+
         await send_embed(
-            ctx,
+            interaction,
             title="📚 Available Modules",
             fields=fields,
-            color=discord.Color.blue(),
+            color=Color.blue(),
             footer=f"Total: {len(modules)} modules",
             ephemeral=True
         )
     
-    @app_commands.command(name="joinmodule", aliases=["join"], description="Join a module")
+    @app_commands.command(name="joinmodule", description="Join a module")
     @app_commands.describe(module="Module code, e.g. MAT1512")
-    async def join_module(self, ctx, code: str):
-        """Join a module to access its channels
-        
-        Usage: !joinmodule COS1501
-        """
-        code = code.upper()
-        
-        if not self.dm.module_exists(code):
+    async def join_module(self, interaction: Interaction, module: str):
+        module = module.upper()
+        guild = interaction.guild
+        member = interaction.user
+
+        if not guild:
             await send_embed(
-                ctx,
-                title="❌ Not Found",
-                description=f"Module **{code}** does not exist.",
-                color=discord.Color.red(),
+                interaction,
+                title="❌ Error",
+                description="This command must be used in a server.",
+                color=Color.red(),
                 ephemeral=True
             )
             return
-        
-        module_data = self.dm.get_module(code)
-        role = ctx.guild.get_role(module_data.get('role_id', 0))
-        
+
+        if not self.dm.module_exists(module):
+            await send_embed(
+                interaction,
+                title="❌ Not Found",
+                description=f"Module **{module}** does not exist.",
+                color=Color.red(),
+                ephemeral=True
+            )
+            return
+
+        module_data = self.dm.get_module(module)
+        role = guild.get_role(module_data.get("role_id", 0))
+
         if not role:
             await send_embed(
-                ctx,
+                interaction,
                 title="❌ Error",
-                description=f"Module role for **{code}** not found.",
-                color=discord.Color.red(),
+                description=f"Module role for **{module}** not found.",
+                color=Color.red(),
                 ephemeral=True
             )
             return
-        
-        if role in ctx.author.roles:
+
+        if role in member.roles:
             await send_embed(
-                ctx,
+                interaction,
                 title="⚠️ Already Joined",
-                description=f"You are already in **{code}**.",
-                color=discord.Color.orange(),
+                description=f"You are already in **{module}**.",
+                color=Color.orange(),
                 ephemeral=True
             )
             return
-        
+
         try:
-            await ctx.author.add_roles(role, reason=f"Joined module {code}")
-            self.dm.add_user_module(ctx.author.id, code)
-            
+            await member.add_roles(role, reason=f"Joined module {module}")
+            self.dm.add_user_module(member.id, module)
+
             await send_embed(
-                ctx,
+                interaction,
                 title="✅ Module Joined",
-                description=f"You have joined **{code}**!\n\nYou can now access the module channels.",
-                color=discord.Color.green(),
+                description=f"You have joined **{module}**! You can now access the module channels.",
+                color=Color.green(),
                 ephemeral=True
             )
-            
+
         except discord.Forbidden:
             await send_embed(
-                ctx,
+                interaction,
                 title="❌ Permission Error",
                 description="I don't have permission to assign roles.",
-                color=discord.Color.red(),
+                color=Color.red(),
                 ephemeral=True
             )
     
-    @app_commands.command(name="leavemodule", aliases=["leave"], description="Leave a module")
+    @app_commands.command(name="leavemodule", description="Leave a module")
     @app_commands.describe(module="Module code, e.g. MAT1512")
-    async def leave_module(self, ctx, code: str):
-        """Leave a module
-        
-        Usage: !leavemodule COS1501
-        """
-        code = code.upper()
-        
-        if not self.dm.module_exists(code):
+    async def leave_module(self, interaction: Interaction, module: str):
+        module = module.upper()
+        guild = interaction.guild
+        member = interaction.user
+
+        if not guild:
             await send_embed(
-                ctx,
-                title="❌ Not Found",
-                description=f"Module **{code}** does not exist.",
-                color=discord.Color.red(),
+                interaction,
+                title="❌ Error",
+                description="This command must be used in a server.",
+                color=Color.red(),
                 ephemeral=True
             )
             return
-        
-        module_data = self.dm.get_module(code)
-        role = ctx.guild.get_role(module_data.get('role_id', 0))
-        
+
+        if not self.dm.module_exists(module):
+            await send_embed(
+                interaction,
+                title="❌ Not Found",
+                description=f"Module **{module}** does not exist.",
+                color=Color.red(),
+                ephemeral=True
+            )
+            return
+
+        module_data = self.dm.get_module(module)
+        role = guild.get_role(module_data.get("role_id", 0))
+
         if not role:
             await send_embed(
-                ctx,
+                interaction,
                 title="❌ Error",
-                description=f"Module role for **{code}** not found.",
-                color=discord.Color.red(),
+                description=f"Module role for **{module}** not found.",
+                color=Color.red(),
                 ephemeral=True
             )
             return
-        
-        if role not in ctx.author.roles:
+
+        if role not in member.roles:
             await send_embed(
-                ctx,
+                interaction,
                 title="⚠️ Not Joined",
-                description=f"You are not in **{code}**.",
-                color=discord.Color.orange(),
+                description=f"You are not in **{module}**.",
+                color=Color.orange(),
                 ephemeral=True
             )
             return
-        
+
         try:
-            await ctx.author.remove_roles(role, reason=f"Left module {code}")
-            
+            await member.remove_roles(role, reason=f"Left module {module}")
+            self.dm.remove_user_module(member.id, module)
+
             await send_embed(
-                ctx,
+                interaction,
                 title="✅ Module Left",
-                description=f"You have left **{code}**.",
-                color=discord.Color.green(),
+                description=f"You have left **{module}**.",
+                color=Color.green(),
                 ephemeral=True
             )
-            
+
         except discord.Forbidden:
             await send_embed(
-                ctx,
+                interaction,
                 title="❌ Permission Error",
                 description="I don't have permission to remove roles.",
-                color=discord.Color.red(),
+                color=Color.red(),
                 ephemeral=True
             )
 

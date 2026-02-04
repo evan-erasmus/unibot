@@ -16,19 +16,16 @@ class Utilities(commands.Cog):
         self.dm = DataManager()
         self.start_time = datetime.utcnow()
     
-    @app_commands.command(name="ping")
-    async def ping(self, ctx):
-        """Check bot latency
-        
-        Usage: !ping
-        """
+    @app_commands.command(name="ping", description="Check bot latency")
+    async def ping(self, interaction: Interaction):
         latency = round(self.bot.latency * 1000)
-        
+        color = Color.green() if latency < 100 else Color.orange()
+
         await send_embed(
-            ctx,
+            interaction,
             title="🏓 Pong!",
             description=f"Latency: **{latency}ms**",
-            color=discord.Color.green() if latency < 100 else discord.Color.orange(),
+            color=color,
             ephemeral=True
         )
     

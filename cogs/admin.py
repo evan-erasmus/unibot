@@ -158,31 +158,33 @@ class Admin(commands.Cog):
 
     @app_commands.command(name="announce", description="Send an announcement to a channel")
     @app_commands.checks.has_permissions(administrator=True)
-    async def announce(self, ctx, channel: discord.TextChannel, *, message: str):
-        """Send an announcement to a channel
-        
-        Usage: !announce #channel message
-        """
+    @app_commands.describe(channel="Channel to send the announcement", message="Message content")
+    async def announce(self, interaction: Interaction, channel: TextChannel, message: str):
         try:
             embed = discord.Embed(
                 description=message,
-                color=discord.Color.blue(),
+                color=Color.blue(),
                 timestamp=datetime.utcnow()
             )
-            embed.set_footer(text=f"Announced by {ctx.author.display_name}")
-            
+            embed.set_footer(text=f"Announced by {interaction.user.display_name}")
+
             await channel.send(embed=embed)
-            await ctx.send(f"✅ Announcement sent to {channel.mention}")
-            
-        except discord.Forbidden:
             await send_embed(
-                ctx,
-                title="❌ Permission Error",
-                description=f"I don't have permission to send messages in {channel.mention}.",
-                color=discord.Color.red(),
+                interaction,
+                title="✅ Announcement Sent",
+                description=f"Announcement sent to {channel.mention}",
+                color=Color.green(),
                 ephemeral=True
             )
 
+        except discord.Forbidden:
+            await send_embed(
+                interaction,
+                title="❌ Permission Error",
+                description=f"I don't have permission to send messages in {channel.mention}.",
+                color=Color.red(),
+                ephemeral=True
+            )
     
     @commands.command(name="shutdown")
     @is_owner()

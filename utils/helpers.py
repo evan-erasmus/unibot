@@ -127,18 +127,18 @@ async def safe_delete_message(message: discord.Message, delay: float = 0):
 
 
 async def send_embed(
-    ctx,
+    ctx: Union[commands.Context, Interaction],
     title: str = None,
     description: str = None,
     color: discord.Color = discord.Color.blue(),
-    fields: List[Dict[str, Any]] = None,
+    fields: list[dict] = None,
     footer: str = None,
     thumbnail: str = None,
     ephemeral: bool = False
-) -> discord.Message:
-    """Send a formatted embed message"""
+) -> Message:
+    """Send a formatted embed message compatible with ctx or Interaction"""
     embed = discord.Embed(color=color)
-    
+
     if title:
         embed.title = title
     if description:
@@ -147,16 +147,29 @@ async def send_embed(
         embed.set_footer(text=footer)
     if thumbnail:
         embed.set_thumbnail(url=thumbnail)
-    
+
     if fields:
         for field in fields:
             embed.add_field(
-                name=field.get('name', 'Field'),
-                value=field.get('value', 'No value'),
-                inline=field.get('inline', False)
+                name=field.get("name", "Field"),
+                value=field.get("value", "No value"),
+                inline=field.get("inline", False)
             )
-    
-    return await ctx.send(embed=embed)
+
+    # If ctx is a prefix command
+    if isinstance(ctx, commands.Context):
+        return await ctx.send(embed=embed)
+
+    # If ctx is a slash command Interaction
+    elif isinstance(ctx, Interaction):
+        if ctx.response.is_done():
+            return await ctx.followup.send(embed=embed, ephemeral=ephemeral)
+        else:
+            return await ctx.response.send_message(embed=embed, ephemeral=ephemeral)
+
+    else:
+        raise TypeError("ctx must be commands.Context or Interaction")
+
 
 
 def format_list(items: List[str], max_items: int = 10) -> str:
