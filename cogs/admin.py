@@ -3,7 +3,7 @@ from discord.ext import commands
 from utils.data_manager import DataManager
 from utils.helpers import is_owner, is_admin, log_action, send_embed
 from discord import app_commands
-from discord import Object, Color
+from discord import Object, Color, Interaction
 
 class Admin(commands.Cog):
     """Administrative commands for bot management"""

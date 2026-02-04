@@ -4,6 +4,8 @@ import json
 import discord
 from functools import wraps
 from typing import Union, Any, Dict, List, Optional
+from discord import Object, Color, Interaction
+
 
 DATA_DIR = "data"
 LOG_CHANNEL_NAME = os.getenv("LOG_CHANNEL_NAME", "server-logs")
