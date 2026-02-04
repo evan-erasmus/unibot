@@ -92,7 +92,7 @@ class ServerSetup(commands.Cog):
                 topic="General discussion and casual chat"
             )
             
-            introductions_ch await guild.create_text_channel(
+            introductions_ch = await guild.create_text_channel(
                 "introductions",
                 category=community_cat,
                 topic="Introduce yourself to the community!"
