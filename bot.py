@@ -18,6 +18,7 @@ load_dotenv()
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 OWNER = os.getenv("OWNER_USERNAME")
+GUILD_ID = os.getenv("GUILD_ID", None)
 
 if not TOKEN:
     raise ValueError("DISCORD_TOKEN not found in environment variables")
@@ -43,7 +44,7 @@ class UnisaBot(commands.Bot):
         return commands.when_mentioned_or("!")(self, message)
     
     async def setup_hook(self):
-        """Load all cogs on startup"""
+        """Load all cogs and sync slash commands"""
         cogs = [
             'cogs.admin',
             'cogs.modules',
@@ -53,13 +54,22 @@ class UnisaBot(commands.Bot):
             'cogs.reaction_roles',
             'cogs.server_setup'
         ]
-        
+
+        # Load all cogs
         for cog in cogs:
             try:
                 await self.load_extension(cog)
                 logger.info(f"Loaded {cog}")
             except Exception as e:
                 logger.error(f"Failed to load {cog}: {e}")
+
+        # Sync slash commands to a test guild for instant registration
+        if GUILD_ID:
+            guild = discord.Object(id=GUILD_ID)
+            synced = await self.tree.sync(guild=guild)
+        else:
+            synced = await self.tree.sync()
+        logger.info(f"✅ Synced {len(synced)} slash commands to test guild")
     
     async def on_ready(self):
         """Called when bot is ready"""
