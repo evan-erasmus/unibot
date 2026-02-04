@@ -8,4 +8,5 @@ services:
       DISCORD_TOKEN: ${DISCORD_TOKEN}
       OWNER_USERNAME: ${OWNER_USERNAME}
       LOG_CHANNEL_NAME: ${LOG_CHANNEL_NAME}
+      SERVER_ID: ${SERVER_ID}
     restart: unless-stopped
