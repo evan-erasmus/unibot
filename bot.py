@@ -70,6 +70,9 @@ class UnisaBot(commands.Bot):
         else:
             synced = await self.tree.sync()
         logger.info(f"✅ Synced {len(synced)} slash commands to test guild")
+
+        self.log_commands()
+
     
     async def on_ready(self):
         """Called when bot is ready"""
@@ -83,6 +86,28 @@ class UnisaBot(commands.Bot):
                 name="UNISA students | !help"
             )
         )
+
+    def log_commands(self):
+        """Log all loaded prefix and slash commands"""
+
+        # Prefix commands (!help, !sync, etc.)
+        prefix_commands = [cmd.name for cmd in self.commands]
+
+        # Slash commands (/ping, /joinmodule, etc.)
+        slash_commands = [cmd.name for cmd in self.tree.get_commands()]
+
+        logger.info("===== REGISTERED COMMANDS =====")
+
+        logger.info(f"Prefix commands ({len(prefix_commands)}):")
+        for cmd in sorted(prefix_commands):
+            logger.info(f"  !{cmd}")
+
+        logger.info(f"Slash commands ({len(slash_commands)}):")
+        for cmd in sorted(slash_commands):
+            logger.info(f"  /{cmd}")
+
+        logger.info("================================")
+
     
     async def on_command_error(self, ctx, error):
         """Global error handler"""
