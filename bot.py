@@ -19,6 +19,7 @@ load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 OWNER = os.getenv("OWNER_USERNAME")
 GUILD_ID = os.getenv("GUILD_ID", None)
+MDOULE_SELECTION_CHANNEL = int(os.getenv("MODULE_SELECTION_CHANNEL_ID", 0))
 
 if not TOKEN:
     raise ValueError("DISCORD_TOKEN not found in environment variables")
@@ -73,6 +74,24 @@ class UnisaBot(commands.Bot):
 
         self.log_commands()
 
+    async def on_message(self, message: discord.Message):
+        if message.author.bot:
+            return
+
+        if message.channel.id == COMMANDS_CHANNEL_ID:
+            try:
+                await message.delete()
+                logger.info(
+                    f"Deleted message in slash-only channel from {message.author}"
+                )
+            except discord.Forbidden:
+                logger.warning("Missing permission to delete messages")
+            except Exception as e:
+                logger.error(f"Delete failed: {e}")
+
+            return
+
+        await self.process_commands(message)
     
     async def on_ready(self):
         """Called when bot is ready"""
