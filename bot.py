@@ -78,7 +78,7 @@ class UnisaBot(commands.Bot):
         if message.author.bot:
             return
 
-        if message.channel.id == COMMANDS_CHANNEL_ID:
+        if message.channel.id == MDOULE_SELECTION_CHANNEL:
             try:
                 await message.delete()
                 logger.info(
